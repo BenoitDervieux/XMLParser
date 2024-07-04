@@ -16,18 +16,18 @@ Information to retreieve/store
 To create this parser, I will in order need to make the methods: 
 *Read a file --> Done
 *Print each character of the file in the terminal --> Done
-*Print every tag (no distinction of beginning or end)
-
-Reflexion: 
-We have one pointer in the file that holds the place of the first appearance of "<"
-We have another one which hold the appearance of ">"
-We can then have a structure which has : 
-- beginning
-- end
-- The word
+*Print every tag (no distinction of beginning or end) --> Done
+*Print every tag even the text --> Done
+*Print every tag with distinction of beginning and end --> Done with the function "starts_with"
 
 
-*Print every tag with distinction of beginning and end
+*Store all the tags in a data structure
+Reflexion:We can have a dynamic array or a Linked list, or any other type of data structure
+But here the double linked list could be a good way to store informations
+We can eventually have a structure : word, type(node or text) prev, next, degree of node
+And a structure of different nodes
+
+
 *Print the content of a tag
 
 

@@ -6,7 +6,7 @@ int main() {
 
     XMLDocument doc;
     if(loadXMLDocument(&doc, "test.xml") == 1) {
-        printf("Document Loaded");
+        printf("Document Loaded\n");
         
     }
     return 0;

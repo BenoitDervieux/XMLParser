@@ -14,11 +14,38 @@
 
 struct _XMLDocument 
 {
-    char * word;
+    XMLNode* root;
 };
 typedef struct _XMLDocument XMLDocument;
 
+struct _XMLNode
+{
+    char * word;
+    char * type;
+    int degree;
+    _XMLNode* prev;
+    _XMLNode* next;
+
+};
+typedef struct _XMLNode XMLNode;
+
+struct _XMLNodeList
+{
+    int heap_size;
+    int size;
+    struct _XMLNode** data;
+};
+typedef struct _XMLNodeList XMLNodeList;
+
+
+XMLNode* XMLNode_new(XMLNode* parent);
+void XMLNode_free(XMLNode* node);
+void XMLNodeList_init(XMLNodeList* list);
+void XMLNodeList_add(XMLNodeList* list, struct _XMLNode* node);
+void XMLNodeList_free(XMLNodeList* list);
+
 int loadXMLDocument(XMLDocument* doc, const char* path);
+int starts_with(const char *str, const char ch );
 
 int loadXMLDocument(XMLDocument* doc, const char* path) {
     FILE* file = fopen(path, "r");
@@ -50,7 +77,9 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
         //Recognize end of tag
         if (c == '>') {
             if (tagBool) {
-                printf("Tag node: %s\n", buffer);
+                if (!starts_with(buffer, '/')) {
+                    printf("Tag node: %s\n", buffer);
+                }
                 for (int i = 0; i < d + 1; i++)
                     buffer[i] = 0;
                 d=0;
@@ -75,7 +104,7 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
         // Recognize beginning of tag
         if (c == '<') {
             if(tagContent) {
-                printf("Tag texte: %s\n", buffer);
+                printf("Tag text: %s\n", buffer);
                 for (int i = 0; i < d + 1; i++)
                     buffer[i] = 0;
                 d=0;
@@ -92,3 +121,9 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
 }
 
 #endif
+
+
+
+int starts_with(const char *str, const char ch ){
+    return str[0] == ch;
+}
