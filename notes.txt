@@ -1,0 +1,37 @@
+I am trying to create an XML parser using C for Lesk
+The project is just something simple to fetch information from the an XML file inside the controller
+Which will consists in keeping the most information compared to more operational about the speed/functions etc...
+
+Information to retreieve/store
+*Product number
+*Product name
+*OwnerID
+*Owner name
+*Owner email
+*Number of lines (for now we will go to a simple 2*10(*6) lights)
+*Data_Pins
+*Wifi credential
+*Wifi password
+
+To create this parser, I will in order need to make the methods: 
+*Read a file --> Done
+*Print each character of the file in the terminal --> Done
+*Print every tag (no distinction of beginning or end)
+
+Reflexion: 
+We have one pointer in the file that holds the place of the first appearance of "<"
+We have another one which hold the appearance of ">"
+We can then have a structure which has : 
+- beginning
+- end
+- The word
+
+
+*Print every tag with distinction of beginning and end
+*Print the content of a tag
+
+
+
+Optional:
+*Print the attributes
+*Print the content of the attributes
