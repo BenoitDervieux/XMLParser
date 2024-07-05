@@ -5,7 +5,9 @@
 int main() {
 
     XMLDocument doc;
-    if(loadXMLDocument(&doc, "test.xml") == 1) {
+    XMLNodeList list;
+    if(loadXMLDocument(&doc, "test.xml", &list) == 1) {
+        XMLNodeList_print(&list);
         printf("Document Loaded\n");
         
     }

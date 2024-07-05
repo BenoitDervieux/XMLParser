@@ -40,7 +40,7 @@ struct _XMLNodeList
 typedef struct _XMLNodeList XMLNodeList;
 
 int starts_with(const char *str, const char ch );
-int loadXMLDocument(XMLDocument* doc, const char* path);
+int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list);
 XMLNode* XMLNode_init();
 XMLNode* XMLNode_new(XMLNode* parent);
 void XMLNode_free(XMLNode* node);
@@ -50,7 +50,7 @@ void XMLNodeList_free(XMLNodeList* list);
 void XMLNodeList_print(XMLNodeList* list);
 
 
-int loadXMLDocument(XMLDocument* doc, const char* path) {
+int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
     FILE* file = fopen(path, "r");
     if (file == NULL) {
         printf("Error opening file\n");
@@ -89,8 +89,8 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
 
     doc->root = XMLNode_init();
     XMLNode* current_node = doc->root;
-    XMLNodeList node_list = {0, 0, NULL};
-    XMLNodeList_init(&node_list);
+    XMLNodeList* node_list = list;
+    XMLNodeList_init(node_list);
 
     while ((c = fgetc(file)) != EOF) {
 
@@ -115,19 +115,10 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
                     for (int i = 0; i < d + 1; i++) {
                         wordu[i] = buffer[i];
                     }
-                    // Pas un probleme de null terminated
-                    // Pas un problème de copie
-                    // Pas un pb de nombre d'éléments dans la liste
-                    // Pas un problème d'instantiation
-                    // Problème de pointeur
                     current_node->word = strdup(wordu);
-                    current_node->type = type[1];
+                    current_node->type = strdup(type[1]);
                     current_node->degree = degree;
-                    printf("\n\nTag node pointer: %s, degree: %d, type: %s\n", wordu, degree, type[1]);
-                    printf("\n***Current pointer word: %s\n", current_node->word);
-                    printf("***Current pointer degree: %d\n", current_node->degree);
-                    printf("***Current pointer type: %s\n", current_node->type);
-                    XMLNodeList_add(&node_list, current_node);
+                    XMLNodeList_add(node_list, current_node);
                 }
                 if (starts_with(buffer, '/')) {
                     degree--;
@@ -160,13 +151,9 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
                     wordu[i] = buffer[i];
                 }
                 current_node->word = strdup(wordu);
-                current_node->type = type[2];
+                current_node->type = strdup(type[2]);
                 current_node->degree = degree;
-                printf("\n\nTag text pointer: %s, degree: %d, type: %s\n", wordu, degree, type[2]);
-                printf("\n***Current pointer word: %s\n", current_node->word);
-                printf("***Current pointer degree: %d\n", current_node->degree);
-                printf("***Current pointer type: %s\n", current_node->type);
-                XMLNodeList_add(&node_list, current_node);
+                XMLNodeList_add(node_list, current_node);
                 for (int i = 0; i < d + 1; i++)
                     buffer[i] = 0;
                 d=0;
@@ -176,7 +163,7 @@ int loadXMLDocument(XMLDocument* doc, const char* path) {
         }
     
     }
-    XMLNodeList_print(&node_list);
+    // XMLNodeList_print(&node_list);
     printf("\n");
 
     fclose(file);
