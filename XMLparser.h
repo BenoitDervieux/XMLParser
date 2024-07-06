@@ -48,6 +48,9 @@ void XMLNodeList_init(XMLNodeList* list);
 void XMLNodeList_add(XMLNodeList* list, struct _XMLNode* node);
 void XMLNodeList_free(XMLNodeList* list);
 void XMLNodeList_print(XMLNodeList* list);
+char* XMLNode_getType(XMLNodeList* list,  char* node);
+int XMLNode_getDegree(XMLNodeList* list,  char* node);
+char* XMLNode_getNode(XMLNodeList* list,  char* text);
 
 
 int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
@@ -235,4 +238,60 @@ void XMLNode_free(XMLNode* node)
     // if (node->next)
     //     free(node->next);
     free(node);
+}
+
+char* XMLNode_getWord(XMLNodeList* list,  char* node) {
+    XMLNode* current;
+    XMLNode* next;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, node) == 0) {
+            if (i+1 < list->size)
+                return list->data[i+1]->word;
+            return NULL;
+        }
+    }
+    return NULL;
+}
+
+char* XMLNode_getType(XMLNodeList* list,  char* node) {
+    XMLNode* current;
+    XMLNode* next;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, node) == 0) {
+            if (i+1 < list->size)
+                return list->data[i+1]->type;
+            return NULL;
+        }
+    }
+    return NULL;
+}
+
+int XMLNode_getDegree(XMLNodeList* list,  char* node) {
+    XMLNode* current;
+    XMLNode* next;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, node) == 0) {
+            if (i+1 < list->size)
+                return list->data[i+1]->degree;
+            return -1;
+        }
+    }
+    return -1;
+}
+
+char* XMLNode_getNode(XMLNodeList* list,  char* text) {
+    XMLNode* current;
+    XMLNode* previous;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, text) == 0) {
+            if (i > 0)
+                return list->data[i-1]->word;
+            return NULL;
+        }
+    }
+    return NULL;
 }
