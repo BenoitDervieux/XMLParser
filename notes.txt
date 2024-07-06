@@ -25,8 +25,12 @@ To create this parser, I will in order need to make the methods:
 
 Next:
 *Write inside a tag
-*Replace text inside a tag
+1 - Let's check how to write inside a file in C
+2 - One idea I have here is to store the beginning and the end of a Node so that then we can replace it
+in another method as we have no choice than to store the content of a file inside memory
 
+
+*Replace text inside a tag
 
 
 Optional:

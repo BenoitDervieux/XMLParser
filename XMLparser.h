@@ -22,6 +22,9 @@ struct _XMLNode
     char* word;
     char* type;
     int degree;
+    long start;
+    long end;
+
 };
 typedef struct _XMLNode XMLNode;
 
@@ -50,7 +53,10 @@ void XMLNodeList_free(XMLNodeList* list);
 void XMLNodeList_print(XMLNodeList* list);
 char* XMLNode_getType(XMLNodeList* list,  char* node);
 int XMLNode_getDegree(XMLNodeList* list,  char* node);
+long int XMLNode_getStart(XMLNodeList* list,  char* node);
+long int XMLNode_getEnd(XMLNodeList* list, char* node);
 char* XMLNode_getNode(XMLNodeList* list,  char* text);
+char* getLast(XMLNodeList* list);
 
 
 int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
@@ -97,9 +103,9 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
 
     while ((c = fgetc(file)) != EOF) {
 
-        //long position;
-        //position = ftell(file);
-        //printf("\nCurrent file position: %ld\n", position);
+        long position;
+        position = ftell(file);
+        // printf("\nCurrent file position: %ld\n", position);
 
         if(tagContent && c == '\n') {
             tagContent = FALSE;
@@ -121,7 +127,11 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
                     current_node->word = strdup(wordu);
                     current_node->type = strdup(type[1]);
                     current_node->degree = degree;
+                    current_node->start = ftell(file);
                     XMLNodeList_add(node_list, current_node);
+                    // Here when we have the position we get the beginning of the index
+                    if (!strcmp(getLast(node_list),"test"))
+                        printf("Position: %ld\n", ftell(file));
                 }
                 if (starts_with(buffer, '/')) {
                     degree--;
@@ -156,10 +166,14 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
                 current_node->word = strdup(wordu);
                 current_node->type = strdup(type[2]);
                 current_node->degree = degree;
+                current_node->end = ftell(file);
+                if (!strcmp(getLast(node_list),"test"))
+                    printf("Position: %ld\n", ftell(file));
                 XMLNodeList_add(node_list, current_node);
                 for (int i = 0; i < d + 1; i++)
                     buffer[i] = 0;
                 d=0;
+                
             }
             tagContent = FALSE;
             tagBool = TRUE;
@@ -168,6 +182,8 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
     }
     // XMLNodeList_print(&node_list);
     printf("\n");
+
+    printf("Position of the last node : %ld\n", ftell(file));
 
     fclose(file);
     return 1;
@@ -215,7 +231,9 @@ void XMLNodeList_add(XMLNodeList* list, XMLNode* node)
 
 void XMLNodeList_print(XMLNodeList* list) {
     for (int i = 0; i < list->size; i++) {
-        printf("Word : %s, Type: %s, Degree: %d\n", list->data[i]->word, list->data[i]->type, list->data[i]->degree);
+        printf("Word : %s, Type: %s, Degree: %d, Start: %ld, End: %ld\n", 
+        list->data[i]->word, list->data[i]->type, list->data[i]->degree,
+        list->data[i]->start, list->data[i]->end);
     }
 }
 
@@ -282,6 +300,34 @@ int XMLNode_getDegree(XMLNodeList* list,  char* node) {
     return -1;
 }
 
+long int XMLNode_getStart(XMLNodeList* list,  char* node) {
+    XMLNode* current;
+    XMLNode* next;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, node) == 0) {
+            if (i+1 < list->size)
+                return list->data[i+1]->start;
+            return -1;
+        }
+    }
+    return -1;
+}
+
+long int XMLNode_getEnd(XMLNodeList* list, char* node) {
+    XMLNode* current;
+    XMLNode* next;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, node) == 0) {
+            if (i+1 < list->size)
+                return list->data[i+1]->end;
+            return -1;
+        }
+    }
+    return -1;
+}
+
 char* XMLNode_getNode(XMLNodeList* list,  char* text) {
     XMLNode* current;
     XMLNode* previous;
@@ -294,4 +340,13 @@ char* XMLNode_getNode(XMLNodeList* list,  char* text) {
         }
     }
     return NULL;
+}
+
+char* getLast(XMLNodeList* list) {
+    if (list->size != 0) {
+        printf("Get Last test %s\n", list->data[list->size-1]->word);
+        return list->data[list->size-1]->word;
+    }
+    return NULL;
+    
 }
