@@ -42,24 +42,33 @@ struct _XMLNodeList
 };
 typedef struct _XMLNodeList XMLNodeList;
 
-int starts_with(const char *str, const char ch );
-int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list);
+// Functions declaration
+int 
+    starts_with(const char *str, const char ch ),
+    loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list),
+    reloadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list),
+    replaceXMLtext(const char * file_name, const char * insertion, XMLNode * node),
+    XMLNode_getDegree(XMLNodeList* list,  char* node);
+
 XMLNode* XMLNode_init();
 XMLNode* XMLNode_new(XMLNode* parent);
-void XMLNode_free(XMLNode* node);
-void XMLNodeList_init(XMLNodeList* list);
-void XMLNodeList_add(XMLNodeList* list, struct _XMLNode* node);
-void XMLNodeList_free(XMLNodeList* list);
-void XMLNodeList_print(XMLNodeList* list);
-char* XMLNode_getType(XMLNodeList* list,  char* node);
-int XMLNode_getDegree(XMLNodeList* list,  char* node);
+XMLNode* getNodeContent(XMLNodeList * list, const char* node);
+
+void 
+    XMLNode_free(XMLNode* node),
+    XMLNodeList_init(XMLNodeList* list),
+    XMLNodeList_add(XMLNodeList* list, struct _XMLNode* node),
+    XMLNodeList_free(XMLNodeList* list),
+    XMLNodeList_print(XMLNodeList* list);
+
 long int XMLNode_getStart(XMLNodeList* list,  char* node);
 long int XMLNode_getEnd(XMLNodeList* list, char* node);
+
+char* XMLNode_getType(XMLNodeList* list,  char* node);
 char* XMLNode_getNode(XMLNodeList* list,  char* text);
 char* getLast(XMLNodeList* list);
-XMLNode * getNodeContent(XMLNodeList * list, const char* node);
-int reloadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list);
-int replaceXMLtext(const char * file_name, const char * insertion, XMLNode * node);
+
+
 
 
 int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {

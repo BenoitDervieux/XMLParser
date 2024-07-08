@@ -3,7 +3,7 @@
 #include "XMLparser.h"
 
 int main() {
-
+    // Here we have a small 
     XMLDocument doc;
     XMLNodeList list;
     if(loadXMLDocument(&doc, "test.xml", &list) == 1) {
