@@ -61,12 +61,14 @@ void
     XMLNodeList_free(XMLNodeList* list),
     XMLNodeList_print(XMLNodeList* list);
 
-long int XMLNode_getStart(XMLNodeList* list,  char* node);
-long int XMLNode_getEnd(XMLNodeList* list, char* node);
+long int 
+    XMLNode_getStart(XMLNodeList* list,  char* node),
+    XMLNode_getEnd(XMLNodeList* list, char* node);
 
 char* XMLNode_getType(XMLNodeList* list,  char* node);
 char* XMLNode_getNode(XMLNodeList* list,  char* text);
 char* getLast(XMLNodeList* list);
+char* XMLNode_getWord(XMLNodeList* list,  const char* node);
 
 
 
@@ -315,13 +317,15 @@ void XMLNodeList_free(XMLNodeList* list)
 // Get the content the word of Node
 // [TODO] --> Rename it because it feels like we get the content of the next node
 // So it would be better with a "Get content node"
-char* XMLNode_getWord(XMLNodeList* list,  char* node) {
+char* XMLNode_getWord(XMLNodeList* list,  const char* node) {
     XMLNode* current;
     XMLNode* next;
     for (int i = 0; i < list->size; i++) {
         current = list->data[i];
         if (strcmp(current->word, node) == 0) {
             if (i+1 < list->size)
+                if (strcmp(list->data[i+1]->word, "") == 0)
+                    return NULL;
                 return list->data[i+1]->word;
             return NULL;
         }
@@ -430,6 +434,8 @@ int reloadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
     XMLNodeList_init(list);
     return loadXMLDocument(doc, path, list);
 }
+
+// It works as well when the field is empty
 
 int replaceXMLtext(const char * file_name, const char * insertion, XMLNode * node) {
 

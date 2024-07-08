@@ -8,6 +8,7 @@ int main() {
     XMLNodeList list;
     if(loadXMLDocument(&doc, "test.xml", &list) == 1) {
         XMLNodeList_print(&list);
+        printf("Content in the node: %s\n", XMLNode_getWord(&list,  "wifi-pwd"));
         XMLNode* to_replace = getNodeContent(&list, "wifi-name");
         if (to_replace == NULL) {
             printf("No content\n");
