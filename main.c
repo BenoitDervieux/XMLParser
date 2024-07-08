@@ -8,13 +8,20 @@ int main() {
     XMLNodeList list;
     if(loadXMLDocument(&doc, "test.xml", &list) == 1) {
         XMLNodeList_print(&list);
-        // This can spot things we want
-        // char* node = "test2";
-        // printf("Test search content:\n      Content: %s, Type: %s, Degree: %d, Start: %ld, End: %ld\n", 
-        //         XMLNode_getWord(&list, node), XMLNode_getType(&list, node), XMLNode_getDegree(&list, node)
-        //         , XMLNode_getStart(&list, node), XMLNode_getEnd(&list, node)); 
+        XMLNode* to_replace = getNodeContent(&list, "wifi-name");
+        if (to_replace == NULL) {
+            printf("No content\n");
+            return 1;
+        }
+        replaceXMLtext("test.xml", "V&B", to_replace);
+        reloadXMLDocument(&doc, "test.xml", &list);
+        to_replace = getNodeContent(&list, "wifi-pwd");
+        if (to_replace == NULL) {
+            printf("No content\n");
+            return 1;
+        }
+        replaceXMLtext("test.xml", "123456", to_replace);
         printf("\n");
-        // printf("Test search node: %s\n", XMLNode_getWord(&list, "Wesh alors"));
         printf("Document Loaded\n");
         
     }

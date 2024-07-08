@@ -3,5 +3,7 @@
         <test>Wesh alors</test>
         <test2>Wesh alors 2</test2>
     </subtest>
+    <wifi-name>V&B</wifi-name>
+    <wifi-pwd>123456</wifi-pwd>
     <lila>Loulou</lila>
 </tests>

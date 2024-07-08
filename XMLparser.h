@@ -57,6 +57,9 @@ long int XMLNode_getStart(XMLNodeList* list,  char* node);
 long int XMLNode_getEnd(XMLNodeList* list, char* node);
 char* XMLNode_getNode(XMLNodeList* list,  char* text);
 char* getLast(XMLNodeList* list);
+XMLNode * getNodeContent(XMLNodeList * list, const char* node);
+int reloadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list);
+int replaceXMLtext(const char * file_name, const char * insertion, XMLNode * node);
 
 
 int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
@@ -122,6 +125,7 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
 
         //Recognize end of tag
         if (c == '>') {
+
             if (tagBool) {
                 // This is where we catch the end of a tag, need to be carefull with the index of the 
                 // tag. As we said, ftell starts with 1, not 0
@@ -161,6 +165,7 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
             // Reset the booleans
             tagBool = FALSE;
             tagContent = TRUE;
+            current_node->start = ftell(file);
         }
 
         // Copies tag in buffer
@@ -183,7 +188,10 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
             // printf("Position beginning: %ld\n", ftell(file));
             // We get the start position of any node here, the position starts with 1
             // but in ftell terms it's the 0. However, we'll have to add 1
-            current_node->start = ftell(file);
+            if (tagContent)
+                current_node->end = ftell(file);
+            else 
+                current_node->start = ftell(file);
             if(tagContent) {
                 for (int i = 0; i < d + 1; i++) {
                     wordu[i] = buffer[i];
@@ -207,9 +215,6 @@ int loadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
     
     }
     printf("\n");
-
-    printf("Position of the last node : %ld\n", ftell(file));
-
     fclose(file);
     return 1;
 }
@@ -222,7 +227,7 @@ int starts_with(const char *str, const char ch ){
 
 // Instantiate a new node using a parent node
 XMLNode* XMLNode_new(XMLNode* parent) {
-    XMLNode* node = malloc(sizeof(struct _XMLNode));
+    XMLNode* node = (XMLNode*)malloc(sizeof(XMLNode));;
     node->word = parent->word;
     node->type = parent->type;
     node->degree = parent->degree;
@@ -231,12 +236,23 @@ XMLNode* XMLNode_new(XMLNode* parent) {
     return node;
 }
 
-// [TODO] --> To implement the free function
-void XMLNode_free(XMLNode* node);
+// Free the node
+void XMLNode_free(XMLNode* node) {
+    if (node->word != NULL) {
+        free(node->word);
+    }
+    if (node->type != NULL) {
+        free(node->type);
+    }
+    node->degree = 0;
+    node->start = 0;
+    node->end = 0;
+    // free(node);
+};
 
 // Initialize a new Node
 XMLNode* XMLNode_init() {
-    XMLNode* node = malloc(sizeof(struct _XMLNode));
+    XMLNode* node = (XMLNode*)malloc(sizeof(XMLNode));;
     node->word = NULL;
     node->type = NULL;
     node->degree = 0;
@@ -275,17 +291,16 @@ void XMLNodeList_print(XMLNodeList* list) {
 // Free the list of Nodes
 void XMLNodeList_free(XMLNodeList* list)
 {
-    free(list);
-}
-
-// Free the node
-void XMLNode_free(XMLNode* node)
-{
-    if (node->word)
-        free(node->word);
-    if (node->type)
-        free(node->type);
-    free(node);
+    if (list->data != NULL) {
+        for (int i = 0; i < list->size; i++) {
+            XMLNode_free(list->data[i]);
+        }
+        free(list->data);
+    }
+    list->data = NULL;
+    list->heap_size = 0;
+    list->size = 0;
+    // free(list);
 }
 
 // Get the content the word of Node
@@ -381,11 +396,102 @@ char* XMLNode_getNode(XMLNodeList* list,  char* text) {
 // Get Last Node
 char* getLast(XMLNodeList* list) {
     if (list->size != 0) {
-        printf("Get Last test %s\n", list->data[list->size-1]->word);
+        // printf("Get Last test %s\n", list->data[list->size-1]->word);
         return list->data[list->size-1]->word;
     }
     return NULL;
+}
+
+XMLNode * getNodeContent(XMLNodeList * list, const char* node) {
+    XMLNode* current;
+    XMLNode* next;
+    for (int i = 0; i < list->size; i++) {
+        current = list->data[i];
+        if (strcmp(current->word, node) == 0) {
+            if (i+1 < list->size)
+                return list->data[i+1];
+            return NULL;
+        }
+    }
+    return NULL;
+}
+
+int reloadXMLDocument(XMLDocument* doc, const char* path, XMLNodeList* list) {
+    XMLNodeList_free(list);
+    XMLNodeList_init(list);
+    return loadXMLDocument(doc, path, list);
+}
+
+int replaceXMLtext(const char * file_name, const char * insertion, XMLNode * node) {
+
+    // Open the document
+    FILE* file = fopen(file_name, "r");
+    if (file == NULL) {
+        printf("Error opening file\n");
+        return 0;
+    }
+    // Get to the end and get the size
+    fseek(file, 0, SEEK_END);
+    int size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    // Setup a first buffer
+    char* buffer = (char*) malloc(sizeof(char) * size + 1);
+
+    // Store the values in the buffer
+    for (int i = 0; i < size; i++) {
+        buffer[i] = fgetc(file);
+    }
+    buffer[size] = '\0';
+
+    // Get the length of the insertion
+    size_t length = strlen(insertion);
+
+    // [TODO] --> Make the insertion operation here (So take out a word and replace it for instance)
+    // Maybe in the future we'll need a XMLNode to access directly the start and the end
+    int start = node->start;
+    int end = node->end - 1;
+    for (int i = start; i < end; i++) {
+        printf("%c", buffer[i]);
+    }
+    printf("\n");
+
+    // Here what we will do is to take the size of the buffer, substract the (end - start)
+    // and then add the length of the word. --> this will give the new size of the buffer
+    int final_size = size - (end - start) + length + 1;
+    char * buffer_fsize = (char*) malloc(sizeof(char) * final_size);
+
+    // Implement the first loop up to the index 
+    for (int i = 0; i < start; i++) {
+        buffer_fsize[i] = buffer[i];
+    }
+    // Implement the second loop for the replacing word
+    // from the start index to the length of the new word
+    for (int i = start; i < start + length; i++) {
+        buffer_fsize[i] = insertion[i-start];
+    }
+    // implement the rest of the document
+    // from the end index to the end of the buffer 1
+    for(int i = end; i < size; i++) {
+        buffer_fsize[start + length + (i-end)] = buffer[i];
+    }
+
+    buffer_fsize[final_size] = '\0';
+    printf("%s\n", buffer_fsize);
+    printf("*************************\n");
+
     
+    fclose(file);
+
+    FILE* file_to_write_to = fopen(file_name, "w");
+    if (file_to_write_to == NULL) {
+        printf("Error opening file\n");
+        return 0;
+    }
+    for (int i = 0; i < final_size - 1; i++) {
+        fputc(buffer_fsize[i], file_to_write_to);
+    }
+    fclose(file_to_write_to);
+    return 1;
 }
 
 #endif
