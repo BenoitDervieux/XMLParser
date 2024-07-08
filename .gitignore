@@ -2,6 +2,6 @@
 *.out
 main
 *.h.gch
-tutorial
+/tutorial
 notes.txt
 notes
